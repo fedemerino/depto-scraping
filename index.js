@@ -178,6 +178,6 @@ const getUrl = (page) => {
   return `${BASE_URL}/${CITY}-${MIN_PRICE}-${MAX_PRICE}-${FILTERS}-${page}.html`;
 };
 
-cron.schedule("*/60 * * * *", () => {
+cron.schedule("*/1 * * * *", () => {
   writeApartmentsInGoogleSheet();
 })
