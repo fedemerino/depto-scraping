@@ -1,0 +1,8 @@
+{
+    "build":{
+        "commands":
+        [
+            "npx playwright install --with-deps chromium"
+        ]
+    }
+}
