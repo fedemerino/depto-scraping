@@ -1,9 +1,0 @@
-{
-  "build": {
-    "commands": [
-      "npx playwright install",
-      "npm install",
-      "npm run vercel-build"
-    ]
-  }
-}

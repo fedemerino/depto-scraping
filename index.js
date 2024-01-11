@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+import { chromium } from "playwright-chromium";
 import { selectors } from "@playwright/test";
 import { config } from "dotenv";
 import cron from "node-cron";
@@ -10,8 +10,8 @@ config();
 const BASE_URL = process.env.BASE_URL;
 const CITY = process.env.CITY;
 const FILTERS = process.env.FILTERS;
-const MIN_PRICE = 100000;
-const MAX_PRICE = 200000;
+const MIN_PRICE = 110000;
+const MAX_PRICE = 180000;
 const LAST_PAGE = 999;
 const MAX_STREET_ORONO = 1700;
 const MIN_STREET_ORONO = 1200;
@@ -143,21 +143,25 @@ const writeApartmentsInGoogleSheet = async () => {
   try {
     const apartments = await searchApartments();
     await doc.loadInfo();
+   
     const sheet = doc.sheetsByIndex[0];
     await sheet.loadHeaderRow();
     const rows = await sheet.getRows();
+    let newApartmentsCount = 0;
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SPREADSHEET_ID}`
     for (const apartment of apartments) {
       const row = rows.find((row) => row.get("URL") === apartment.link);
       if (!row) {
+        newApartmentsCount++;
         await sheet.addRow({
           Fecha: new Date().toLocaleString(),
           Precio: apartment.price.replace(".", ""),
           Direccion: apartment.address,
           URL: apartment.link,
         });
-        console.log("\x1b[32m%s\x1b[0m", "New apartment found");
       }
     }
+    console.log("\x1b[32m%s\x1b[0m",`${newApartmentsCount} New apartment/s found. Google Sheet URL: ${sheetUrl}`);
   } catch (e) {
     logger.error(e.message);
   }
@@ -178,6 +182,6 @@ const getUrl = (page) => {
   return `${BASE_URL}/${CITY}-${MIN_PRICE}-${MAX_PRICE}-${FILTERS}-${page}.html`;
 };
 
-cron.schedule("*/1 * * * *", () => {
-  writeApartmentsInGoogleSheet();
-});
+writeApartmentsInGoogleSheet();
+// cron.schedule("*/60 * * * *", () => {
+// });
